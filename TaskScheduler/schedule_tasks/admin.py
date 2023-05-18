@@ -5,10 +5,11 @@ from schedule_tasks.models import ScheduledTask, TaskExecutionHistory
 
 class TaskExecutionHistoryInlineAdmin(admin.StackedInline):
     model = TaskExecutionHistory
+    readonly_fields = ("created", "updated", )
     extra = 0
 
 
-class TaskAdmin(admin.ModelAdmin):
+class ScheduledTaskAdmin(admin.ModelAdmin):
     model = ScheduledTask
     inlines = [
         TaskExecutionHistoryInlineAdmin
@@ -35,4 +36,4 @@ class TaskAdmin(admin.ModelAdmin):
         ordering = ('-created',)
 
 
-admin.site.register(ScheduledTask, TaskAdmin)
+admin.site.register(ScheduledTask, ScheduledTaskAdmin)

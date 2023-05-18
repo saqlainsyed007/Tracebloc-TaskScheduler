@@ -7,7 +7,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from schedule_tasks.models import ScheduledTask, TaskExecutionHistory
+from schedule_tasks.models import ScheduledTask
 
 
 class Command(BaseCommand):

@@ -3,12 +3,12 @@
 from rest_framework.routers import DefaultRouter
 
 from schedule_tasks.views import (
-    TaskViewSet,
+    ScheduledTaskViewSet,
     # TaskListCreateAPIView, TaskRetrieveUpdateDestroyAPIView,
 )
 
 router = DefaultRouter()
-router.register(r'', TaskViewSet, basename='task_viewset')
+router.register(r'', ScheduledTaskViewSet, basename='task_viewset')
 urlpatterns = router.urls
 
 # urlpatterns = [

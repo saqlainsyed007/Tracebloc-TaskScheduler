@@ -24,6 +24,8 @@ services:
       DJANGO_SUPERUSER_USERNAME: admin
       DJANGO_SUPERUSER_PASSWORD: admin
       DJANGO_SUPERUSER_EMAIL: admin.user@email.com
+      CELERY_BROKER_URL: "amqp://tasks-scheduler-rabbitmq:5672"
+      CELERY_RESULT_BACKEND: "redis://tasks-scheduler-redis:6379/1"
     depends_on:
       - tasks-scheduler-postgres
 
@@ -33,3 +35,45 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: password
+
+  tasks-scheduler-redis:
+    image: redis:7
+    container_name: tasks-scheduler-redis
+    ports:
+      - "6379:6379"
+    tty: true
+
+  tasks-scheduler-rabbitmq:
+    image: rabbitmq:3.11.6
+    container_name: tasks-scheduler-rabbitmq
+    ports:
+      - 5672:5672
+    volumes:
+      - ./rabbitmq:/data/configuration/
+    restart: always
+    environment:
+      RABBITMQ_CONFIG_FILE: "/data/configuration/rabbitmq.conf"
+
+  tasks-scheduler-celery:
+    image: python:3.11
+    container_name: tasks-scheduler-celery
+    working_dir: /usr/src/app
+    volumes:
+      - ./TaskScheduler:/usr/src/app
+    command: >
+      bash -c "
+        pip install --upgrade pip &&
+        pip install -r requirements.txt &&
+        mkdir -p /var/run/celery/ &&
+        celery -A TaskScheduler worker -l INFO --statedb=/var/run/celery/worker.state
+      "
+    environment:
+      DATABASE_URL: "postgres://postgres:password@tasks-scheduler-postgres:5432/postgres"
+      DJANGO_SECRET_KEY: "django-insecure-_8#+pna*a95(%)9a$sm)!5_ldhjrj@k7_m9n#2_6lq5mxeohev"
+      CELERY_BROKER_URL: "amqp://tasks-scheduler-rabbitmq:5672"
+      CELERY_RESULT_BACKEND: "redis://tasks-scheduler-redis:6379/1"
+    depends_on:
+      - tasks-scheduler-rabbitmq
+      - tasks-scheduler-redis
+      - tasks-scheduler-postgres
+      - tasks-scheduler-django

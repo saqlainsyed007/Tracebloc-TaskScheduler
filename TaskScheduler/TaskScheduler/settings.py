@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
 import dj_database_url
 
 from pathlib import Path
@@ -153,3 +154,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,
 }
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')

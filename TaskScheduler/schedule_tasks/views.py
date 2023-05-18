@@ -9,15 +9,15 @@ from rest_framework.viewsets import ModelViewSet
 
 from schedule_tasks.models import ScheduledTask, TaskExecutionHistory
 from schedule_tasks.serializers import (
-    TaskSerializer, TaskExecutionHistorySerializer, TaskListParamsSerializer
+    ScheduledTaskSerializer, TaskExecutionHistorySerializer, ScheduledTaskListParamsSerializer
 )
 
 
-class TaskViewSet(ModelViewSet):
+class ScheduledTaskViewSet(ModelViewSet):
 
     model = ScheduledTask
     permission_classes = [IsAuthenticated]
-    serializer_class = TaskSerializer
+    serializer_class = ScheduledTaskSerializer
 
     def get_queryset(self):
         return ScheduledTask.objects.filter(user_id=self.request.user.id)
@@ -29,7 +29,7 @@ class TaskViewSet(ModelViewSet):
         query_set = self.get_queryset()
         serializer_class = self.get_serializer_class()
 
-        request_query_params_serializer = TaskListParamsSerializer(data=request.query_params)
+        request_query_params_serializer = ScheduledTaskListParamsSerializer(data=request.query_params)
         if not request_query_params_serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=request_query_params_serializer.errors)
         request_query_params = request_query_params_serializer.data
@@ -95,7 +95,7 @@ class TaskViewSet(ModelViewSet):
 # class TaskListCreateAPIView(ListCreateAPIView):
 
 #     permission_classes = [IsAuthenticated]
-#     serializer_class = TaskSerializer
+#     serializer_class = ScheduledTaskSerializer
 
 #     def get_queryset(self):
 #         return ScheduledTask.objects.filter(user_id=self.request.user.id)
@@ -107,7 +107,7 @@ class TaskViewSet(ModelViewSet):
 #         query_set = self.get_queryset()
 #         serializer_class = self.get_serializer_class()
 
-#         request_query_params_serializer = TaskListParamsSerializer(data=request.query_params)
+#         request_query_params_serializer = ScheduledTaskListParamsSerializer(data=request.query_params)
 #         if not request_query_params_serializer.is_valid():
 #             return Response(status=status.HTTP_400_BAD_REQUEST, data=request_query_params_serializer.errors)
 #         request_query_params = request_query_params_serializer.data
@@ -138,7 +138,7 @@ class TaskViewSet(ModelViewSet):
 # class TaskRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 #     permission_classes = [IsAuthenticated]
-#     serializer_class = TaskSerializer
+#     serializer_class = ScheduledTaskSerializer
 
 #     def get_queryset(self):
 #         return ScheduledTask.objects.filter(user_id=self.request.user.id)

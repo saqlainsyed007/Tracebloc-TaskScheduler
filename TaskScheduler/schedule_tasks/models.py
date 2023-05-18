@@ -65,7 +65,7 @@ class TaskExecutionHistory(models.Model):
             (TRIGGERED, "Triggered"),
         )
 
-    task = models.ForeignKey(
+    scheduled_task = models.ForeignKey(
         ScheduledTask,
         on_delete=models.CASCADE,
         help_text="A reference to the Scheduled Task",

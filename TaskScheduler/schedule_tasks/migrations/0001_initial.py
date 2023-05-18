@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('failure_details', models.TextField(blank=True, help_text='Additional information regarding failure', null=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('updated', models.DateTimeField(auto_now=True)),
-                ('task', models.ForeignKey(help_text='A reference to the Scheduled Task', on_delete=django.db.models.deletion.CASCADE, to='schedule_tasks.scheduledtask')),
+                ('scheduled_task', models.ForeignKey(help_text='A reference to the Scheduled Task', on_delete=django.db.models.deletion.CASCADE, to='schedule_tasks.scheduledtask')),
             ],
         ),
     ]

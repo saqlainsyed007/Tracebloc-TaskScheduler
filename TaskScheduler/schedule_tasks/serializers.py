@@ -16,7 +16,7 @@ class TaskExecutionHistorySerializer(serializers.ModelSerializer):
         ordering = ["-created"]
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class ScheduledTaskSerializer(serializers.ModelSerializer):
 
     # history = TaskExecutionHistorySerializer(read_only=True, many=True, source="taskexecutionhistory_set")
 
@@ -36,7 +36,7 @@ class TaskSerializer(serializers.ModelSerializer):
         return schedule_time
 
 
-class TaskListParamsSerializer(serializers.Serializer):
+class ScheduledTaskListParamsSerializer(serializers.Serializer):
     status = serializers.CharField(required=False)
     schedule_time_start = serializers.DateTimeField(required=False)
     schedule_time_end = serializers.DateTimeField(required=False)
