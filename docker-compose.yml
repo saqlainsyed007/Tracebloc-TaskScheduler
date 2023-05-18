@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  tasks-scheduler-django:
+    image: python:3.11
+    container_name: tasks-scheduler-django
+    working_dir: /usr/src/app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./TaskScheduler:/usr/src/app
+    command: >
+      bash -c "
+        pip install --upgrade pip &&
+        pip install -r requirements.txt &&
+        python manage.py migrate &&
+        python manage.py ensure_admin &&
+        python manage.py seed_tasks &&
+        python manage.py runserver 0:8000
+      "
+    environment:
+      DEBUG: True
+      DATABASE_URL: "postgres://postgres:password@tasks-scheduler-postgres:5432/postgres"
+      DJANGO_SECRET_KEY: "django-insecure-_8#+pna*a95(%)9a$sm)!5_ldhjrj@k7_m9n#2_6lq5mxeohev"
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_PASSWORD: admin
+      DJANGO_SUPERUSER_EMAIL: admin.user@email.com
+    depends_on:
+      - tasks-scheduler-postgres
+
+  tasks-scheduler-postgres:
+    image: postgres
+    container_name: tasks-scheduler-postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
