@@ -77,3 +77,28 @@ services:
       - tasks-scheduler-redis
       - tasks-scheduler-postgres
       - tasks-scheduler-django
+
+  tasks-scheduler-django-trigger-tasks-command:
+    image: python:3.11
+    container_name: tasks-scheduler-django-trigger-tasks-command
+    working_dir: /usr/src/app
+    volumes:
+      - ./TaskScheduler:/usr/src/app
+    command: >
+      bash -c "
+        pip install --upgrade pip &&
+        pip install -r requirements.txt &&
+        python manage.py trigger_scheduled_tasks
+      "
+    environment:
+      DEBUG: True
+      DATABASE_URL: "postgres://postgres:password@tasks-scheduler-postgres:5432/postgres"
+      DJANGO_SECRET_KEY: "django-insecure-_8#+pna*a95(%)9a$sm)!5_ldhjrj@k7_m9n#2_6lq5mxeohev"
+      CELERY_BROKER_URL: "amqp://tasks-scheduler-rabbitmq:5672"
+      CELERY_RESULT_BACKEND: "redis://tasks-scheduler-redis:6379/1"
+    depends_on:
+      - tasks-scheduler-rabbitmq
+      - tasks-scheduler-redis
+      - tasks-scheduler-postgres
+      - tasks-scheduler-django
+      - tasks-scheduler-celery
