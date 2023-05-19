@@ -24,7 +24,6 @@ class TaskExecutionHistorySerializer(serializers.ModelSerializer):
 
 class ScheduledTaskSerializer(serializers.ModelSerializer):
 
-    # history = TaskExecutionHistorySerializer(read_only=True, many=True, source="taskexecutionhistory_set")
     schedule_time = serializers.DateTimeField(validators=[validate_schedule_time])
 
     class Meta:

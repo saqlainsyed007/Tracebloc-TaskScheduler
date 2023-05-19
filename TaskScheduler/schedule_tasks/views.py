@@ -1,8 +1,5 @@
 from rest_framework import status
 from rest_framework.decorators import action
-# from rest_framework.generics import (
-#     ListCreateAPIView, RetrieveUpdateDestroyAPIView,
-# )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -101,62 +98,3 @@ class ScheduledTaskViewSet(ModelViewSet):
         scheduled_task.save()
         response_data = self.get_serializer_class()(scheduled_task).data
         return Response(status=status.HTTP_200_OK, data=response_data)
-
-
-# class TaskListCreateAPIView(ListCreateAPIView):
-
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = ScheduledTaskSerializer
-
-#     def get_queryset(self):
-#         return ScheduledTask.objects.filter(user_id=self.request.user.id)
-
-#     def perform_create(self, serializer):
-#         serializer.save(user=self.request.user)
-
-#     def list(self, request, *args, **kwargs):
-#         query_set = self.get_queryset()
-#         serializer_class = self.get_serializer_class()
-
-#         request_query_params_serializer = ScheduledTaskListParamsSerializer(data=request.query_params)
-#         if not request_query_params_serializer.is_valid():
-#             return Response(status=status.HTTP_400_BAD_REQUEST, data=request_query_params_serializer.errors)
-#         request_query_params = request_query_params_serializer.data
-
-#         filter_params = {}
-
-#         task_status = request_query_params.get("status")
-#         if task_status:
-#             filter_params["status"] = task_status
-
-#         schedule_time_start = request_query_params.get("schedule_time_start")
-#         if schedule_time_start:
-#             filter_params["schedule_time__gte"] = schedule_time_start
-
-#         schedule_time_end = request_query_params.get("schedule_time_end")
-#         if schedule_time_end:
-#             filter_params["schedule_time__lt"] = schedule_time_end
-
-#         sort_by = request_query_params.get('sort_by', '-created')
-
-#         query_set = query_set.filter(**filter_params).order_by(sort_by)
-#         query_set = self.paginate_queryset(queryset=query_set)
-#         response_data = serializer_class(query_set, many=True).data
-
-#         return self.paginator.get_paginated_response(response_data)
-
-
-# class TaskRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = ScheduledTaskSerializer
-
-#     def get_queryset(self):
-#         return ScheduledTask.objects.filter(user_id=self.request.user.id)
-
-#     def update(self, request, *args, **kwargs):
-#         task = self.get_object()
-#         if task.status in [ScheduledTask.TaskStatus.IN_PROGRESS, ScheduledTask.TaskStatus.SUCCEEDED]:
-#             err_data = {"error": f"Cannot update task when it is {task.status}"}
-#             return Response(status=status.HTTP_400_BAD_REQUEST, data=err_data)
-#         return super().update(request, *args, **kwargs)
