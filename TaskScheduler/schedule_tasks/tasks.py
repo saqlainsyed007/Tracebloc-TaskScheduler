@@ -69,8 +69,13 @@ class ScheduleTaskHandler(celery.Task):
 def log_task_message(self, schedule_task_id):
 
     task = ScheduledTask.objects.get(id=schedule_task_id)
-    task.status = ScheduledTask.TaskStatus.IN_PROGRESS
-    task.save()
+
+    if task.status == ScheduledTask.TaskStatus.SCHEDULED:
+        task.status = ScheduledTask.TaskStatus.IN_PROGRESS
+        task.save()
+
+    if task.status != ScheduledTask.TaskStatus.IN_PROGRESS:
+        return
 
     time.sleep(10)
 

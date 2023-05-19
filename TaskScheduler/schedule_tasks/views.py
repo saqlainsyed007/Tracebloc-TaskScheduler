@@ -9,8 +9,10 @@ from rest_framework.viewsets import ModelViewSet
 
 from schedule_tasks.models import ScheduledTask, TaskExecutionHistory
 from schedule_tasks.serializers import (
-    ScheduledTaskSerializer, TaskExecutionHistorySerializer, ScheduledTaskListParamsSerializer
+    ScheduledTaskSerializer, TaskExecutionHistorySerializer,
+    ScheduledTaskListParamsSerializer, ReScheduleTaskDataSerializer,
 )
+from schedule_tasks.utils.task_utils import cancel_scheduled_task
 
 
 class ScheduledTaskViewSet(ModelViewSet):
@@ -76,20 +78,29 @@ class ScheduledTaskViewSet(ModelViewSet):
     @action(detail=True, methods=["patch"])
     def cancel(self, request, pk):
         scheduled_task = self.get_object()
-        if scheduled_task not in [ScheduledTask.TaskStatus.SCHEDULED, ScheduledTask.TaskStatus.IN_PROGRESS]:
+        if scheduled_task.status not in [ScheduledTask.TaskStatus.SCHEDULED, ScheduledTask.TaskStatus.IN_PROGRESS]:
             err_data = {"error": "Only scheduled and in progress tasks can be cancelled"}
             return Response(status=status.HTTP_400_BAD_REQUEST, data=err_data)
-        scheduled_task.status = ScheduledTask.TaskStatus.CANCELLED
-        scheduled_task.save()
+        cancel_scheduled_task(scheduled_task)
+        scheduled_task.refresh_from_db()
+        response_data = self.get_serializer_class()(scheduled_task).data
+        return Response(status=status.HTTP_200_OK, data=response_data)
 
     @action(detail=True, methods=["patch"])
     def reschedule(self, request, pk):
         scheduled_task = self.get_object()
-        if scheduled_task not in [ScheduledTask.TaskStatus.FAILED, ScheduledTask.TaskStatus.CANCELLED]:
+        if scheduled_task.status not in [ScheduledTask.TaskStatus.FAILED, ScheduledTask.TaskStatus.CANCELLED]:
             err_data = {"error": "Only failed and cancelled tasks can be rescheduled"}
             return Response(status=status.HTTP_400_BAD_REQUEST, data=err_data)
+        serializer = ReScheduleTaskDataSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
+        scheduled_task.schedule_time = serializer.data['schedule_time']
+        scheduled_task.task_id_worker = None
         scheduled_task.status = ScheduledTask.TaskStatus.SCHEDULED
         scheduled_task.save()
+        response_data = self.get_serializer_class()(scheduled_task).data
+        return Response(status=status.HTTP_200_OK, data=response_data)
 
 
 # class TaskListCreateAPIView(ListCreateAPIView):

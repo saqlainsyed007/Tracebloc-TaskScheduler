@@ -6,6 +6,12 @@ from rest_framework import serializers
 from schedule_tasks.models import ScheduledTask, TaskExecutionHistory
 
 
+def validate_schedule_time(schedule_time):
+    if schedule_time <= timezone.now() or schedule_time > timezone.now() + timedelta(days=365):
+        raise serializers.ValidationError("schedule_time must be within a year in the future")
+    return schedule_time
+
+
 class TaskExecutionHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskExecutionHistory
@@ -19,6 +25,7 @@ class TaskExecutionHistorySerializer(serializers.ModelSerializer):
 class ScheduledTaskSerializer(serializers.ModelSerializer):
 
     # history = TaskExecutionHistorySerializer(read_only=True, many=True, source="taskexecutionhistory_set")
+    schedule_time = serializers.DateTimeField(validators=[validate_schedule_time])
 
     class Meta:
         model = ScheduledTask
@@ -29,11 +36,6 @@ class ScheduledTaskSerializer(serializers.ModelSerializer):
             "status", "created", "updated",
         ]
         ordering = ["-created"]
-
-    def validate_schedule_time(self, schedule_time):
-        if schedule_time <= timezone.now() or schedule_time > timezone.now() + timedelta(days=365):
-            raise serializers.ValidationError("schedule_time within a year in the future")
-        return schedule_time
 
 
 class ScheduledTaskListParamsSerializer(serializers.Serializer):
@@ -68,3 +70,7 @@ class ScheduledTaskListParamsSerializer(serializers.Serializer):
             err_msg = "schedule_time_end must be greater than schedule_time_start"
             raise serializers.ValidationError(err_msg)
         return data
+
+
+class ReScheduleTaskDataSerializer(serializers.Serializer):
+    schedule_time = serializers.DateTimeField(validators=[validate_schedule_time])
